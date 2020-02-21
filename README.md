@@ -6,9 +6,9 @@ In this code pattern, we walk you through a working example of a web app that ut
 
 Using the Watson Discovery Smart Document Understanding (SDU) feature, we will enhance the Discovery model so that queries will be better focused to only search the most relevant information found in a typical owner's manual.
 
-Using Watson Assistant, we will use a standard customer care dialog to handle a typical conversation between a custmomer and a company representitive. When a customer question involves operation of a product, the Assistant dialog skill will communicate with the Discovery service using an Assistant search skill.
+Using Watson Assistant, we will use a standard customer care dialog to handle a typical conversation between a customer and a company representitive. When a customer question involves operation of a product, the Assistant dialog skill will communicate with the Discovery service using an Assistant search skill.
 
-> **NOTE**: This code pattern includes instructions for accessing Watson services running on both IBM CLoud and on IBM Cloud Pak for Data. In setting up your app, the main difference is the additional credentials required to access the IBM Cloud Pak for Data cluster that is hosting your Watson services.
+> **NOTE**: This code pattern includes instructions for accessing Watson services running on both IBM Cloud and on IBM Cloud Pak for Data. In setting up your app, the main difference is the additional credentials required to access the IBM Cloud Pak for Data cluster that is hosting your Watson services.
 >
 > Click [here](https://www.ibm.com/products/cloud-pak-for-data) for more information about IBM Cloud Pak for Data.
 
