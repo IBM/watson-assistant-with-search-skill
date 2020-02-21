@@ -5,7 +5,7 @@ node_js:
   - "node"
   - "lts/*"
 script:
-- npm run test
+- npm run lint
 cache:
   directories:
   - node_modules

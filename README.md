@@ -31,11 +31,9 @@ Here is a great video that provides an overview of the benefits of SDU, and a wa
 
 ## What is an Assistant Search Skill?
 
-A webhook is a mechanism that allows you to call out to an external program based on something happening in your program. When used in a Watson Assistant dialog skill, a webhook is triggered when the Assistant processes a node that has a webhook enabled. The webhook collects data that you specify or that you collect from the user during the conversation and save in context variables, and sends the data to the Webhook request URL as an HTTP POST request. The URL that receives the webhook is the listener. It performs a predefined action using the information that is provided by the webhook as specified in the webhook definition, and can optionally return a response.
+An Assistant search skill is a mechanism that allows you to directly query a Watson Discovery collection from your Assistant dialog. A search skill is triggered when the dialog reaches a node that has a search skill enabled. The user query is then passed to the Watson Discovery collection via the search skill, and the results are returned to the dialog for display to the user.
 
-In our example, the webhook will communicate with an IBM Cloud Functions `web action`, which is connected to the Watson Discovery service.
-
-> Note: Using the Watson Assistant Search Skill is another option that could have been used here. Similar to using a webhook, a Search Skill can be configured to query a Watson Discovery collection. This feature, however, is still in beta testing and only available with IBM Cloud paid plans. For that reason, we have choosen to use webhooks at this time. Hopefully, this feature can be added to this code pattern in the future. Click [here](https://cloud.ibm.com/docs/services/assistant?topic=assistant-skill-search-add) for more information about the Watson Assistant Search Skill.
+Click [here](https://cloud.ibm.com/docs/services/assistant?topic=assistant-skill-search-add) for more information about the Watson Assistant search skill.
 
 ## Flow
 
@@ -44,8 +42,7 @@ In our example, the webhook will communicate with an IBM Cloud Functions `web ac
 1. The document is annotated using Watson Discovery SDU
 1. The user interacts with the backend server via the app UI. The frontend app UI is a chatbot that engages the user in a conversation.
 1. Dialog between the user and backend server is coordinated using a Watson Assistant dialog skill.
-1. If the user asks a product operation question, a search query is passed to a predefined IBM Cloud Functions action.
-1. The Cloud Functions action will query the Watson Discovery service and return the results.
+1. If the user asks a product operation question, a search query is issued to the Watson Discovery service via a Watson Assistant search skill.
 
 # Watch the Video
 
@@ -54,29 +51,156 @@ In our example, the webhook will communicate with an IBM Cloud Functions `web ac
 # Steps:
 
 1. [Clone the repo](#1-clone-the-repo)
-1. [Create IBM Cloud services](#2-create-ibm-cloud-services)
+1. [Create Watson services](#2-create-watson-services)
 1. [Configure Watson Discovery](#3-configure-watson-discovery)
-1. [Create IBM Cloud Functions action](#4-create-ibm-cloud-functions-action)
-1. [Configure Watson Assistant](#5-configure-watson-assistant)
-1. [Get IBM Cloud services credentials and add to .env file](#6-get-ibm-cloud-services-credentials-and-add-to-env-file)
-1. [Run the application](#7-run-the-application)
+1. [Configure Watson Assistant](#4-configure-watson-assistant)
+1. [Add Watson service credentials to environment file](#5-add-watson-service-credentials-to-environment-file)
+1. [Run the application](#6-run-the-application)
 
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/IBM/watson-discovery-sdu-with-assistant
+git clone https://github.com/IBM/watson-assistant-with-search-skill
 ```
 
-### 2. Create IBM Cloud services
+### 2. Create Watson services
 
 Create the following services:
 
-* [**Watson Discovery**](https://cloud.ibm.com/catalog/services/discovery)
-* [**Watson Assistant**](https://cloud.ibm.com/catalog/services/assistant)
+* **Watson Assistant**
+* **Watson Discovery**
+
+The instructions will depend on whether you are provisioning services using IBM Cloud Pak for Data or on IBM Cloud.
+
+Click to expand one:
+
+<details><summary><b>IBM Cloud Pak for Data</b></summary>
+<p>
+<i>Use the following instructions for each of the services.</i>
+<p>
+<h5>Install and provision service instances</h5>
+<p>
+The services are not available by default. An administrator must install them on the IBM Cloud Pak for Data platform, and you must be given access to the service. To determine whether the service is installed, Click the <b>Services</b> icon (<img class="lazycontent" src="doc/source/images/services_icon.png" alt="services_icon"/>) and check whether the service is enabled.
+</details>
+
+<details><summary><b>IBM Cloud</b></summary>
+<p>
+<h5>Create the service instances</h5>
+  <ul>
+    <li>If you do not have an IBM Cloud account, register for a free trial account <a href="https://cloud.ibm.com/registration">here</a>.</li>
+    <li>Create a <b>Assistant</b> instance from <a href="https://cloud.ibm.com/catalog/services/watson-assistant">the catalog</a>.</li>
+    <li>Create a <b>Discovery</b> instance from <a href="https://cloud.ibm.com/catalog/services/discovery">the catalog</a>.</li>
+  </ul>
+</details>
 
 ### 3. Configure Watson Discovery
 
-#### Import the document
+The instructions for configuring Watson Discovery will depend on whether you provisioned it on IBM Cloud Pak for Data or on IBM Cloud.
+
+Click to expand one:
+
+<details><summary><b>IBM Cloud Pak for Data</b></summary>
+
+### Launch Discovery
+
+Find the Discovery service in your list of `Provisioned Instances` in your IBM Cloud Pak for Data Dashboard.
+
+Click on `View Details` from the options menu associated with your Discovery service.
+
+  ![disco-view-details](doc/source/images/disco-view-details.png)
+
+Click on `Open Watson Discovery`.
+
+  ![open-disco](doc/source/images/open-disco.png)
+
+### Create a project and collection
+
+Create a new project by clicking the `New Project` tile.
+
+Give the project a unique name and select the `Document Retrieval` option, then click `Next`.
+
+For data source, click on the `Upload data` tile and click `Next`.
+
+Enter a unique name for your collection and click `Finish`.
+
+> **NOTE**: on IBM Cloud Pak for Data, Discovery service queries are defaulted to be performed on all collections within a project. For this reason, it is advised that you create a new project to contain the collection we will be creating for this code pattern.
+
+### Import the document
+
+On the `Configure Collection` panel, click the `Select documents` button to select and upload the `ecobee3_UserGuide.pdf` file located in the `data` directory of your local repo.
+
+The `Ecobee` is a popular residential thermostat that has a wifi interface and multiple configuration options.
+
+### Access the collection
+
+To access the collection, make sure you are in the correct project, then click the `Manage Collections` tab in the left-side of the panel.
+
+  ![project-collections-cpd](doc/source/images/project-collections-cpd.png)
+
+Click the collection tile to access it.
+
+  ![disco-activity-cpd](doc/source/images/disco-activity-cpd.png)
+
+Before applying SDU to our document, lets do some simple queries on the data so that we can compare it to results found after applying SDU. Click the `Try it out` panel to bring up the query panel.
+
+![query-results-pre-cpd](doc/source/images/query-results-pre-cpd.png)
+
+Enter queries related to the operation of the thermostat and view the results. As you will see, the results are not very useful, and in some cases, not even related to the question.
+
+### Annotate with SDU
+
+Now let's apply SDU to our document to see if we can generate some better query responses.
+
+From the Discovery collection panel, click the `Configure data` button (located in the top right corner) to start the SDU process.
+
+Here is the layout of the `Identify fields` tab of the SDU annotation panel:
+
+![disco-sdu-panel-cpd](doc/source/images/disco-sdu-panel-cpd.png)
+
+The goal is to annotate all of the pages in the document so Discovery can learn what text is important, and what text can be ignored.
+
+* [1] is the list of pages in the manual. As each is processed, a green check mark will appear on the page.
+* [2] is the current page being annotated.
+* [3] is where you select text and assign it a label.
+* [4] is the list of labels you can assign to the page text.
+* Click [5] to submit the page to Discovery.
+* Click [6] when you have completed the annotation process.
+
+As you go though the annotations one page at a time, Discovery is learning and should start automatically updating the upcoming pages. Once you get to a page that is already correctly annotated, you can stop, or simply click `Submit` [5] to acknowledge it is correct. The more pages you annotate, the better the model will be trained.
+
+For this specific owner's manual, at a minimum, it is suggested to mark the following:
+
+* The main title page as `title`
+* The table of contents (shown in the first few pages) as `table_of_contents`
+* All headers and sub-headers (typed in light green text) as a `subtitle`
+* All page numbers as `footers`
+* All circuitry diagram pages (located near the end of the document) as a `footer`
+* All licensing infomation (located in the last few pages) as a `footer`
+* All other text should be marked as `text`.
+
+Click the `Apply changes and reprocess` button [6] to load your changes.
+
+Next, click on the `Manage fields` [1] tab.
+
+![disco-manage-field-cpd](doc/source/images/disco-manage-fields-cpd.png)
+
+* [2] Here is where you tell Discovery which fields to ignore. Using the `on/off` buttons, turn off all labels except `subtitles` and `text`.
+* [3] is telling Discovery to split the document apart, based on `subtitle`.
+* Click [4] to submit your changes.
+
+Return to the `Activity` tab. After the changes are processed (may take some time), your collection will look very different:
+
+![disco-collection-panel-cpd](doc/source/images/disco-collection-panel-cpd.png)
+
+Return to the query panel (click `Try it out`) and see how much better the results are.
+
+![disco-build-query-cpd-2](doc/source/images/disco-build-query-cpd-2.png)
+
+</details>
+
+<details><summary><b>IBM Cloud</b></summary>
+
+### Import the document
 
 As shown below, launch the `Watson Discovery` tool and create a new data collection by selecting the `Upload your own data` option. Give the data collection a unique name. When prompted, select and upload the `ecobee3_UserGuide.pdf` file located in the `data` directory of your local repo.
 
@@ -94,7 +218,7 @@ Click the `Build your own query` [1] button.
 
 Enter queries related to the operation of the thermostat and view the results. As you will see, the results are not very useful, and in some cases, not even related to the question.
 
-#### Annotate with SDU
+### Annotate with SDU
 
 Now let's apply SDU to our document to see if we can generate some better query responses.
 
@@ -144,82 +268,53 @@ Return to the query panel (click `Build your own query`) and see how much better
 
 ![disco-build-query-2](doc/source/images/disco-build-query-2.png)
 
-#### Store credentials for future use
+</details>
 
-In upcoming steps, you will need to provide the credentials to access your Discovery collection. The values can be found in the following locations.
+### 4. Configure Watson Assistant
 
-The `Collection ID` and `Environment ID` values can be found by clicking the dropdown button [1] located at the top right side of your collection panel:
+The instructions for configuring Watson Assistant are basically the same for both IBM Cloud Pak for Data and IBM Cloud.
 
-![get-collection-creds](doc/source/images/get-collection-creds.png)
+One difference is how you launch the Watson Assistant service. Click to expand one:
 
-For credentials, return to the main panel of your Discovery service, and click the `Service credentials` [1] tab:
+<details><summary><b>IBM Cloud Pak for Data</b></summary>
 
-![disco-creds](doc/source/images/disco-creds.png)
+Find the Assistant service in your list of `Provisioned Instances` in your IBM Cloud Pak for Data Dashboard.
 
-Click the `View credentials` [2] drop-down menu to view the IAM `apikey` [3] and `URL` endpoint [4] for your service.
+Click on `View Details` from the options menu associated with your Assistant service.
 
-### 4. Create IBM Cloud Functions action
+Click on `Open Watson Assistant`.
 
-Now let's create the `web action` that will make queries against our Discovery collection.
+</details>
 
-Start the `IBM Cloud Functions` service by selecting `Create Resource` from the IBM Cloud dashboard. Enter `functions` as the filter [1], then select the `Functions` card [2]:
+<details><summary><b>IBM Cloud</b></summary>
 
-![action-start-service](doc/source/images/action-start-service.png)
+Find the Assistant service in your IBM Cloud Dashboard.
 
-From the `Functions` main panel, click on the `Actions` tab. Then click on `Create`.
+Click on the service and then click on Launch tool.
 
-From the `Create` panel, select the `Create Action` option.
+</details>
 
-On the `Create Action` panel, provide a unique `Action Name` [1], keep the default package [2], and select the `Node.js 10` [3] runtime. Click the `Create` button [4] to create the action.
+### Create assistant
 
-![action-create](doc/source/images/action-create.png)
+Go to the Assistant tab and click `Create assistant`.
 
-Once your action is created, click on the `Code` tab [1]:
+  ![assistant-list](doc/source/images/assistant-list.png)
 
-![action-code](doc/source/images/action-code.png)
+Give your assistant a unique name then click `Create assistant`.
 
-In the code editor window [2], cut and paste in the code from the `disco-action.js` file found in the `actions` directory of your local repo. The code is pretty straight-forward - it simply connects to the Discovery service, makes a query against the collection, then returns the response.
+### Create Assistant dialog skill
 
-If you press the `Invoke` button [3], it will fail due to credentials not being defined yet. We'll do this next.
+From your Assistant panel, click on `Add dialog skill`.
 
-Select the `Parameters` tab [1]:
+From the `Add Dialog Skill` panel, select the `Use sample skill` tab.
 
-![action-params](doc/source/images/action-params.png)
+Select the `Customer Care Sample Skill` as your template.
 
-Add the following keys:
+The newly created dialog skill should now be shown in your Assistant panel:
 
-* url
-* environment_id
-* collection_id
-* iam_apikey
+  ![assistant-skills-list-1](doc/source/images/assistant-skills-list-1.png)
 
-For values, please use the values associated with the Discovery service you created in the previous step.
-
-> Note: Make sure to enclose your values in double quotes.
-
-Now that the credentials are set, return to the `Code` panel and press the `Invoke` button again. Now you should see actual results returned from the Discovery service:
-
-![action-code-invoke](doc/source/images/action-code-invoke.png)
-
-Next, go to the `Endpoints` panel [1]:
-
-![action-endpoint](doc/source/images/action-endpoint.png)
-
-Click the checkbox for `Enable as Web Action` [2]. This will generate a public endpoint URL [3].
-
-Take note of the REST API endpoint value [3], as this will be needed by Watson Assistant in a future step.
-
-To verify you have entered the correct Discovery parameters, execute the provied `curl` command [4]. If it fails, re-check your parameter values.
-
-> NOTE: An IBM Cloud Functions service will not show up in your dashboard resource list. To return to your defined `Action`, you will need to access Cloud Functions by selecting `Create Resource` from the main dashboard panel (as shown at the beginning of this step).
-
-### 5. Configure Watson Assistant
-
-As shown below, launch the `Watson Assistant` tool and create a new dialog skill. Select the `Use sample skill` option as your starting point.
-
-![upload_data_into_collection](doc/source/images/create-skill.gif)
-
-This dialog skill contains all of the nodes needed to have a typical call center conversation with a user.
+Click on your newly created dialog skill to edit it.
 
 #### Add new intent
 
@@ -237,7 +332,7 @@ Name the intent `#Product_Information`, and at a minimum, enter the following ex
 
 #### Create new dialog node
 
-Now we need to add a node to handle our intent. Click on the `Dialog` [1] tab, then click on the drop down menu for the `Small Talk` node [2], and select the `Add node below` [3] option.
+Now we need to add a node to handle our intent. Click on the `Dialog` tab, then click on the drop down menu for the next to last node and select the `Add node below` option.
 
 ![assistant-add-node](doc/source/images/assistant-add-node.png)
 
@@ -245,57 +340,57 @@ Name the node "Ask about product" [1] and assign it our new intent [2].
 
 ![assistant-define-node](doc/source/images/assistant-define-node.png)
 
-This means that if Watson Assistant recognizes a user input such as "how do I set the time?", it will direct the conversation to this node.
+In the `Assistant responds` dropdown, select the option `Search skill`.
 
-#### Enable webhook from Assistant
+This means that if Watson Assistant recognizes a user input such as "how do I set the time?", it will direct the conversation to this node, which will integrate with the search skill.
 
-Set up access to our WebHook for the IBM Cloud Functions action you created in Step #4.
+### Create Assistant search skill
 
-Select the `Options` tab [1]:
+From your Assistant panel, click on `Add search skill`.
 
-![assistant-define-webhook](doc/source/images/assistant-define-webhook.png)
+> **Note**: If you have provisioned Watson Assistant on IBM Cloud, the search skill is only offered on a paid plan, but a 30-day trial version is available if you click on the `Plus` button.
 
-Enter the public URL endpoint for your action [2]. (Note that the URL should end with `.json`).
+From the `Add Search Skill` panel, select the `Create skill` tab.
 
-Return to the `Dialog` tab, and click on the `Ask about product` node. From the details panel for the node, click on `Customize`, and enable Webhooks for this node:
+Give your search skill a unique name, then click `Continue`.
 
-![assistant-enable-webhook-for-node](doc/source/images/assistant-enable-webhook-for-node.png)
+From the search skill panel, select the Discovery service instance and collection you created previously.
 
-Click `Apply`.
+![search-skill-assign-disco](doc/source/images/search-skill-assign-disco.png)
 
-The dialog node should have a `Return variable` [1] set automatically to `$webhook_result_1`. This is the variable name you can use to access the result from the Discovery service query.
+Click `Configure` to continue.
 
-![assistant-node-config-webhook](doc/source/images/assistant-node-config-webhook.png)
+From the `Configure Search Response` panel, select `text` as the field to use for the `Body` of the response. Click `Save` to complete the configuration.
 
-You will also need to pass in the users question via the parameter `input` [2]. The key needs to be set to the value:
+Now when the dialog skill node invokes the search skill, the search skill will query the Discovery collection and display the text result to the user.
 
-```bash
-"<?input.text?>"
-```
+### Enable search skill
 
-If you fail to do this, Discovery will return results based on a blank query.
+From your Assistant panel, click on the three dots in the upper right-hand corner and select `Settings`.
 
-Optionally, you can add these responses to aid in debugging:
+![assistant-settings-option](doc/source/images/assistant-settings-option.png)
 
-![assistant-node-config-webhook-2](doc/source/images/assistant-node-config-webhook-2.png)
+Select the `Search Skill` tab and ensure that is in `Enabled`.
 
-#### Test in Assistant Tooling
+### Test in Assistant Tooling
 
-From the `Dialog` panel, click the `Try it` button located at the top right side of the panel.
+> **NOTE**: The following feature is currently only available for Watson Assistant provisioned on IBM Cloud.
 
-Enter some user input:
+Normally, you can test the dialog skill be selecting the `Try it` button located at the top right side of the dialog skill panel, but when integrated with a search skill, a different method of testing must be used.
 
-![try-it-dialog](doc/source/images/try-it-dialog.png)
+From your assistant panel, select `Add Integrations`.
 
-Note that the input "how do I turn on the heater?" has triggered our `Ask about product` dialog node, which is indicated by the `#Product_Information` response.
+![assistant-integration-button](doc/source/images/assistant-integration-button.png)
 
-And because we specified that `$webhook_result_1.passages` be the response, that value is displayed also.
+From the list of available integration types, select `Preview link`.
 
-You can also verify that the call was successfully completed by clicking on the `Manage Context` button at the top right. The response from the Discovery query will be stored in the `$webhook_result_1` variable:
+From the `Preview link integration` panel, name your preview link and click `Create`.
 
-![try-it-vars-after](doc/source/images/try-it-vars-after.png)
+If you click on the generated URL link, you will be able to interact with your dialog skill. Note that the input "how do I turn on the heater?" has triggered our `Ask about product` dialog node and invoked our search skill.
 
-### 6. Get IBM Cloud services credentials and add to .env file
+![preview-link](doc/source/images/preview-link.png)
+
+### 5. Add Watson service credentials to environment file
 
 Copy the local `env.sample` file and rename it `.env`:
 
@@ -303,44 +398,103 @@ Copy the local `env.sample` file and rename it `.env`:
 cp env.sample .env
 ```
 
-Update the `.env` file with the credentials from your Assistant service.
+You will need to Update the `.env` file with the credentials from your Assistant service. First you will need the `Assistant ID` which can found by:
+
+* Click on your Assistant panel
+* Clicking on the three dots in the upper right-hand corner and select `Settings`.
+* Select the `API Details` tab.
+
+You will also need the credentials for your Assistant service. What credentials you will need will depend on if you provisioned Watson Assistant on IBM Cloud Pak for Data or on IBM Cloud. Click to expand one:
+
+<details><summary><b>IBM Cloud Pak for Data</b></summary>
+
+<h5>Gather service credentials</h5>
+<p>
+<ol>
+    <li>For production use, create a user to use for authentication. From the main navigation menu (☰), select <b>Administer > Manage users</b> and then <b>+ New user</b>.</li>
+    <li>From the main navigation menu (☰), select <b>My instances</b>.</li>
+    <li>On the <b>Provisioned instances</b> tab, find your service instance, and then hover over the last column to find and click the ellipses icon. Choose <b>View details</b>.</li>
+    <li>Copy the <b>URL</b> to use as the <b>{SERVICE_NAME}_URL</b> when you configure credentials.</li>
+    <li><i>Optionally, copy the <b>Bearer token</b> to use in development testing only. It is not recommended to use the bearer token except during testing and development because that token does not expire.</i></li>
+    <li>Use the <b>Menu</b> and select <b>Users</b> and <b>+ Add user</b> to grant your user access to this service instance. This is the user name (and password) you will use when you configure credentials to allow the Node.js server to authenticate.</li>
+</ol>
+
+Edit the `.env` file with the necessary credentials and settings.
+
+#### `env.sample:`
+
+```bash
+# Copy this file to .env and replace the credentials with
+# your own before starting the app.
+​
+#----------------------------------------------------------
+# IBM Cloud Pak for Data (username and password)
+#
+# If your services are running on IBM Cloud Pak for Data,
+# uncomment and configure these.
+# Remove or comment out the IBM Cloud section.
+#----------------------------------------------------------
+​
+ASSISTANT_AUTH_TYPE=cp4d
+ASSISTANT_AUTH_URL=https://my-cpd-cluster.ibmcodetest.us
+ASSISTANT_USERNAME=my-username
+ASSISTANT_PASSWORD=my-password
+ASSISTANT_URL=https://my-cpd-cluster.ibmcodetest.us/assistant/assistant/instances/1576274722862/api
+# # If you use a self-signed certificate, you need to disable SSL verification.
+# # This is not secure and not recommended.
+## ASSISTANT_AUTH_DISABLE_SSL=true
+## ASSISTANT_DISABLE_SSL=true
+ASSISTANT_ID=<add_assistant_id>
+```
+
+</details>
+
+<details><summary><b>IBM Cloud</b></summary>
+
+For the Watson Assistant service provisioned on IBM Cloud:
+
+<h5>Gather service credentials</h5>
+  <ol>
+    <li>From the main navigation menu (☰), select <b>Resource list</b> to find your services under <b>Services</b>.</li>
+    <li>Click on each service to find the <b>Manage</b> view where you can collect the <b>API Key</b> and <b>URL</b> to use for each service when you configure credentials.
+  </ol>
+
+Edit the `.env` file with the necessary credentials and settings.
+
+#### `env.sample:`
 
 ```bash
 # Copy this file to .env and replace the credentials with
 # your own before starting the app.
 
+#----------------------------------------------------------
+# IBM Cloud
+#
+# If your services are running on IBM Cloud,
+# uncomment and configure these.
+# Remove or comment out the IBM Cloud Pak for Data sections.
+#----------------------------------------------------------
+
 # Watson Assistant
-ASSISTANT_SKILL_ID=<add_assistant_skill_id>
-ASSISTANT_IAM_APIKEY=<add_assistant_iam_apikey>
-
-# Run locally on a non-default port (default is 3000)
-# PORT=3000
+ASSISTANT_AUTH_TYPE=iam
+ASSISTANT_APIKEY=zzZzzABCsU8DBrvi123HLZwVyHbRlBFf_97n9O123ABC
+ASSISTANT_URL=https://gateway.watsonplatform.net/assistant/api
+ASSISTANT_ID=<add_assistant_id>
 ```
 
-Credentials can be found by clicking the Service Credentials tab, then the View Credentials option from the panel of your created Watson service.
+</details>
 
-An additional `ASSISTANT_SKILL_ID` value is required to access the Watson Assistant service. To get this value, select the `Manage` tab, then the `Launch tool` button from the panel of your Watson Assistance service. From the service instance panel, select your Assistant to display the assigned skills. For this code pattern, we used the dialog skill named `Custom Skill Sample Skill` that comes with the service:
+### 6. Run the application
 
-![sample-skill](doc/source/images/sample-skill.png)
-
-Click the option button (highlighted in the image above) to view the skill `API Details`. Here you will find the `Skill ID` value.
-
-![sample-skill-creds](doc/source/images/sample-skill-creds.png)
-
-### 7. Run the application
-
-```bash
-npm install
-npm start
-```
-
-Access the UI by pointing your browser at `localhost:3000`.
+1. Install [Node.js](https://nodejs.org/en/) runtime or NPM.
+1. Start the app by running `npm install`, followed by `npm start`.
+1. Use the chatbot at `localhost:3000`.
 
 Sample questions:
 
+* **How do I override the scheduled temperature**
+* **How do I turn on the heater**
 * **how do I set a schedule?**
-* **how do I set the temperature?**
-* **how do I set the time?**
 
 # Sample Output
 
@@ -348,29 +502,37 @@ Sample questions:
 
 # Access to results in application
 
-* This is the format for how Discovery results will be returned in the Assistant context object:
+* This is a sample of the format for how Discovery results will be returned to the app from the Assistant service:
 
-```
-{ conversation_id: '70bc6532-d3fb-4e4c-9083-7a1c752ba6ef',
-  system: 
-   { initialized: true,
-     dialog_stack: [ { dialog_node: 'root' } ],
-     dialog_turn_counter: 3,
-     dialog_request_counter: 3,
-     _node_output_map:
-      { node_15_1488295465298: [ 0 ],
-        response_1_1559767826196: [ 0 ] },
-     branch_exited: true,
-     branch_exited_reason: 'completed' },
-  webhook_result_1:
-   { matching_results: 9,
-     passages:
-      [ { document_id: '3a5efee70d8cc9d70e2b94d22c15e2d1_2',
-          end_offset: 2791,
-          field: 'text',
-          passage_score: 6.752501692678998,
-          passage_text: 'Specify what the heat pump runs when the O/B Reversing Valve is engaged: On Cool runs cooling when O/B engages (most cases), or On Heat runs heating when O/B engages. 4. Touch Next. You will be returned to the Equipment configuration menu. Furnaces/Boilers If you have a furnace or boiler installed: 1. Select the heating menu. 2. Configure the heater type',
-          start_offset: 2435 },
+```json
+{
+"result": {
+  "output": {
+    "generic": [
+      {
+        "response_type": "search",
+        "header": "I searched my knowledge base and found this information which might be useful:",
+        "results": [
+          {
+            "title": null,
+            "body": "You can override the scheduled temperature by moving the bubble on the temperature slider up or down. The blue number represents the cool set point; the orange number represents the heat set point. The new desired temperature will be the set point used for the Hold. The duration of the Hold is the last configured value (the default value is Until I change it, meaning it keeps the value indefinitely, until you choose to revert to the schedule or change it). You can adjust the default Hold time in the Preferences menu (page 21). To cancel the current Hold, touch the Hold message box displayed on the Home screen. You can touch the box anywhere and not just the X displayed on the box.",
+            "url": null,
+            "id": "3a5efee70d8cc9d70e2b94d22c15e2d1_24",
+            "result_metadata": {
+              "confidence": 0.3056213337457547,
+              "score": 7.38697695
+            },
+            "highlight": {
+              "text": [
+                "You can override the <em>scheduled</em> temperature by moving the bubble on the temperature slider up or down. The blue number represents the cool <em>set</em> point; the orange number represents the heat <em>set</em> point. The new desired temperature will be the <em>set</em> point used for the Hold.",
+                "The duration of the Hold is the last configured value (the default value is Until <em>I</em> change it, meaning it keeps the value indefinitely, until you choose to revert to the <em>schedule</em> or change it). You can adjust the default Hold time in the Preferences menu (page 21). To cancel the current Hold, touch the Hold message box displayed on the Home screen."
+              ],
+              "body": [
+                "You can override the <em>scheduled</em> temperature by moving the bubble on the temperature slider up or down. The blue number represents the cool <em>set</em> point; the orange number represents the heat <em>set</em> point. The new desired temperature will be the <em>set</em> point used for the Hold.",
+                "The duration of the Hold is the last configured value (the default value is Until <em>I</em> change it, meaning it keeps the value indefinitely, until you choose to revert to the <em>schedule</em> or change it). You can adjust the default Hold time in the Preferences menu (page 21). To cancel the current Hold, touch the Hold message box displayed on the Home screen."
+              ]
+            }
+          },
 ```
 
 # Learn more
@@ -384,4 +546,3 @@ Sample questions:
 This code pattern is licensed under the Apache License, Version 2. Separate third-party code objects invoked within this code pattern are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1](https://developercertificate.org/) and the [Apache License, Version 2](https://www.apache.org/licenses/LICENSE-2.0.txt).
 
 [Apache License FAQ](https://www.apache.org/foundation/license-faq.html#WhatDoesItMEAN)
-
