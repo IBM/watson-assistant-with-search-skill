@@ -2,13 +2,11 @@
 
 # Enhance customer helpdesks with Smart Document Understanding using Assistant Search Skill
 
-In this code pattern, we walk you through a working example of a web aapp that utilizes multiple Watson services to create a better customer care experience.
+In this code pattern, we walk you through a working example of a web app that utilizes multiple Watson services to create a better customer care experience.
 
 Using the Watson Discovery Smart Document Understanding (SDU) feature, we will enhance the Discovery model so that queries will be better focused to only search the most relevant information found in a typical owner's manual.
 
-Using Watson Assistant, we will use a standard customer care dialog to handle a typical conversation between a custmomer and a company representitive. When a customer question involves operation of a product, the Assistant Dialog Skill will communicate with the Discovery service using an Assistant Search Skill.
-
-> **NOTE**: On IBM Cloud, the Assistant Search Skill option is only available on a paid plan.
+Using Watson Assistant, we will use a standard customer care dialog to handle a typical conversation between a custmomer and a company representitive. When a customer question involves operation of a product, the Assistant dialog skill will communicate with the Discovery service using an Assistant search skill.
 
 > **NOTE**: This code pattern includes instructions for accessing Watson services running on both IBM CLoud and on IBM Cloud Pak for Data. In setting up your app, the main difference is the additional credentials required to access the IBM Cloud Pak for Data cluster that is hosting your Watson services.
 >
