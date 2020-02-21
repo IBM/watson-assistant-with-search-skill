@@ -26,7 +26,6 @@
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "babelify": "^10.0.0",
-    "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
     "chart.js": "^2.9.3",
     "dotenv": "^6.2.0",

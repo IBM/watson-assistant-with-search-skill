@@ -14,7 +14,6 @@
  * the License.
  */
 
-const Promise = require('bluebird');
 const AssistantV2 = require('ibm-watson/assistant/v2');
 const { getAuthenticatorFromEnvironment } = require('ibm-watson/auth');
 
@@ -51,7 +50,5 @@ const assistant = new AssistantV2({
 
 assistant.assistantId = process.env.ASSISTANT_ID;
 assistant.workspaceId = process.env.WORKSPACE_ID;
-
-assistant.message = Promise.promisify(assistant.message);
 
 module.exports = assistant;
