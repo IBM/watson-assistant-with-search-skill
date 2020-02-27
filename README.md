@@ -33,7 +33,7 @@ An Assistant search skill is a mechanism that allows you to directly query a Wat
 
 Click [here](https://cloud.ibm.com/docs/services/assistant?topic=assistant-skill-search-add) for more information about the Watson Assistant search skill.
 
-> **NOTE**: Another method of integrating Watson Assistant with Watson Discovery is through the use of a webhook, which can created using IBM Cloud Functions. Click [here](https://github.com/IBM/watson-discovery-sdu-with-assistant) to view a code pattern that uses this technique.
+> **NOTE**: Another method of integrating Watson Assistant with Watson Discovery is through the use of a webhook, which can be created using IBM Cloud Functions. Click [here](https://github.com/IBM/watson-discovery-sdu-with-assistant) to view a code pattern that uses this technique.
 
 ## Flow
 
