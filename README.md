@@ -296,7 +296,7 @@ Click on the service and then click on Launch tool.
 
 ### Create assistant
 
-From the main Assistant panel, you will see 2 tab options - `Assistants` and `Skills`. An `Assstant` is the container for a set of `Skills`.
+From the main Assistant panel, you will see 2 tab options - `Assistants` and `Skills`. An `Assistant` is the container for a set of `Skills`.
 
 Go to the Assistant tab and click `Create assistant`.
 
