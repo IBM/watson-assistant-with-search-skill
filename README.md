@@ -296,6 +296,8 @@ Click on the service and then click on Launch tool.
 
 ### Create assistant
 
+From the main Assistant panel, you will see 2 tab options - `Assistants` and `Skills`. An `Assstant` is the container for a set of `Skills`.
+
 Go to the Assistant tab and click `Create assistant`.
 
   ![assistant-list](doc/source/images/assistant-list.png)
@@ -304,7 +306,11 @@ Give your assistant a unique name then click `Create assistant`.
 
 ### Create Assistant dialog skill
 
-From your Assistant panel, click on `Add dialog skill`.
+You will then be taken to a panel that shows the `Skills` assigned to your `Assistant`. You can also revisit this panel by selected the desired `Assistant` listed in the `Assistants` tab panl.
+
+  ![ecobee-assistant-skills-panel](doc/source/images/ecobee-assistant-skills-panel.png)
+
+Click on `Add dialog skill`.
 
 From the `Add Dialog Skill` panel, select the `Use sample skill` tab.
 
@@ -332,7 +338,9 @@ Name the intent `#Product_Information`, and at a minimum, enter the following ex
 
 #### Create new dialog node
 
-Now we need to add a node to handle our intent. Click on the `Dialog` tab, then click on the drop down menu for the next to last node and select the `Add node below` option.
+Now we need to add a node to handle our intent. Click on the back arrow in the top left corner of the panel to return to the main panel. Click on the `Dialog` tab to bring up the nodes defined for the dialog.
+
+Select the `What can I do` node, then click on the drop down menu and select the `Add node below` option.
 
 ![assistant-add-node](doc/source/images/assistant-add-node.png)
 
@@ -346,11 +354,13 @@ This means that if Watson Assistant recognizes a user input such as "how do I se
 
 ### Create Assistant search skill
 
-From your Assistant panel, click on `Add search skill`.
+Return to the Skills panel by clicking the `Skills` icon in the left menu pane.
+
+From your Assistant skills panel, click on `Create skill`.
+
+For `Skill Type`, select `Search skill` and click `Next`.
 
 > **Note**: If you have provisioned Watson Assistant on IBM Cloud, the search skill is only offered on a paid plan, but a 30-day trial version is available if you click on the `Plus` button.
-
-From the `Add Search Skill` panel, select the `Create skill` tab.
 
 Give your search skill a unique name, then click `Continue`.
 
@@ -360,31 +370,31 @@ From the search skill panel, select the Discovery service instance and collectio
 
 Click `Configure` to continue.
 
-From the `Configure Search Response` panel, select `text` as the field to use for the `Body` of the response. Click `Save` to complete the configuration.
+From the `Configure Search Response` panel, select `text` as the field to use for the `Body` of the response.
+
+![ecobee-search-skill-setup](doc/source/images/ecobee-search-skill-setup.png)
+
+You can also customize the return `Message` to be more appropriate for your use case.
+
+Click `Create` to complete the configuration.
 
 Now when the dialog skill node invokes the search skill, the search skill will query the Discovery collection and display the text result to the user.
-
-### Enable search skill
-
-From your Assistant panel, click on the three dots in the upper right-hand corner and select `Settings`.
-
-![assistant-settings-option](doc/source/images/assistant-settings-option.png)
-
-Select the `Search Skill` tab and ensure that is in `Enabled`.
 
 ### Test in Assistant Tooling
 
 > **NOTE**: The following feature is currently only available for Watson Assistant provisioned on IBM Cloud.
 
+You should now see both skills have been added to your assistant.
+
+![ecobee-assistant-with-skills](doc/source/images/ecobee-assistant-with-skills.png)
+
 Normally, you can test the dialog skill be selecting the `Try it` button located at the top right side of the dialog skill panel, but when integrated with a search skill, a different method of testing must be used.
 
-From your assistant panel, select `Add Integrations`.
+From your assistant panel, select `Preview link`.
 
-![assistant-integration-button](doc/source/images/assistant-integration-button.png)
+![assistant-preview-link](doc/source/images/assistant-preview-link.png)
 
 From the list of available integration types, select `Preview link`.
-
-From the `Preview link integration` panel, name your preview link and click `Create`.
 
 If you click on the generated URL link, you will be able to interact with your dialog skill. Note that the input "how do I turn on the heater?" has triggered our `Ask about product` dialog node and invoked our search skill.
 
@@ -451,13 +461,11 @@ ASSISTANT_ID=<add_assistant_id>
 
 <details><summary><b>IBM Cloud</b></summary>
 
-For the Watson Assistant service provisioned on IBM Cloud:
+For the Watson Assistant service provisioned on IBM Cloud, all of your credentials will be available on the `API Details` panel.
 
-<h5>Gather service credentials</h5>
-  <ol>
-    <li>From the main navigation menu (☰), select <b>Resource list</b> to find your services under <b>Services</b>.</li>
-    <li>Click on each service to find the <b>Manage</b> view where you can collect the <b>API Key</b> and <b>URL</b> to use for each service when you configure credentials.
-  </ol>
+![cloud-api-creds](doc/source/images/cloud-api-creds.png)
+
+> **Important**: ASSISTANT_URL should end with an instance ID. If it contains `v2/assistants/<id>`, please delete this part of the URL. For example: "https://api.us-south.assistant.watson.cloud.ibm.com/instances/5db04c67/v2/assistants/a85f67e8-xxx/sessions" should be truncated to "https://api.us-south.assistant.watson.cloud.ibm.com/instances/5db04c67".
 
 Edit the `.env` file with the necessary credentials and settings.
 
