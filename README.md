@@ -486,7 +486,7 @@ Edit the `.env` file with the necessary credentials and settings.
 # Watson Assistant
 ASSISTANT_AUTH_TYPE=iam
 ASSISTANT_APIKEY=zzZzzABCsU8DBrvi123HLZwVyHbRlBFf_97n9O123ABC
-ASSISTANT_URL=https://gateway.watsonplatform.net/assistant/api
+ASSISTANT_URL=https://api.us-south.assistant.watson.cloud.ibm.com/instances/5db04c67
 ASSISTANT_ID=<add_assistant_id>
 ```
 
