@@ -48,6 +48,8 @@ Click [here](https://cloud.ibm.com/docs/services/assistant?topic=assistant-skill
 
 [![video](https://img.youtube.com/vi/-yniuX-Poyw/0.jpg)](https://youtu.be/-yniuX-Poyw)
 
+>**NOTE**: This video is using `V1` versions of both Watson Discovery and Assistant. The concepts are similar in `V2`, but the navigation steps may be different.
+
 # Steps:
 
 1. [Clone the repo](#1-clone-the-repo)
@@ -89,19 +91,19 @@ The services are not available by default. An administrator must install them on
   <ul>
     <li>If you do not have an IBM Cloud account, register for a free trial account <a href="https://cloud.ibm.com/registration">here</a>.</li>
     <li>Create a <b>Assistant</b> instance from <a href="https://cloud.ibm.com/catalog/services/watson-assistant">the catalog</a>.</li>
-    <li>Create a <b>Discovery</b> instance from <a href="https://cloud.ibm.com/catalog/services/discovery">the catalog</a>.</li>
+    <li>Create a <b>Discovery</b> instance from <a href="https://cloud.ibm.com/catalog/services/discovery">the catalog</a> and select the default "Plus" plan.</li>
   </ul>
+
+  >**NOTE**: The first instance of the `Plus` plan for IBM Watson Discovery comes with a free 30-day trial; it is chargeable once the trial is over. If you no longer require your Plus instance for Watson Discovery after going through this exercise, feel free to delete it.
 </details>
 
 ### 3. Configure Watson Discovery
 
-The instructions for configuring Watson Discovery will depend on whether you provisioned it on IBM Cloud Pak for Data or on IBM Cloud.
+Start by launching your Watson Discovery instance. How you do this will depend on whether you provisioned the instance on IBM Cloud Pak for Data or on IBM Cloud.
 
 Click to expand one:
 
 <details><summary><b>IBM Cloud Pak for Data</b></summary>
-
-### Launch Discovery
 
 Find the Discovery service in your list of `Provisioned Instances` in your IBM Cloud Pak for Data Dashboard.
 
@@ -113,37 +115,63 @@ Click on `Open Watson Discovery`.
 
   ![open-disco](doc/source/images/open-disco.png)
 
+</details>
+
+<details><summary><b>IBM Cloud</b></summary>
+
+From the IBM Cloud dashboard, click on your new Discovery service in the resource list.
+
+  ![disco-launch-service](doc/source/images/disco-launch-service.png)
+
+From the `Manage` tab panel of your Discovery service, click the `Launch Watson Discovery` button.
+
+</details>
+
 ### Create a project and collection
+
+The landing page for Watson Discovery is a panel showing your current projects.
 
 Create a new project by clicking the `New Project` tile.
 
+> **NOTE**: The Watson Discovery service queries are defaulted to be performed on all collections within a project. For this reason, it is advised that you create a new project to contain the collection we will be creating for this code pattern.
+
+  ![disco-create-project](doc/source/images/disco-create-project.png)
+
 Give the project a unique name and select the `Document Retrieval` option, then click `Next`.
+
+  ![disco-upload-data](doc/source/images/disco-upload-data.png)
 
 For data source, click on the `Upload data` tile and click `Next`.
 
-Enter a unique name for your collection and click `Finish`.
+  ![disco-create-collection](doc/source/images/disco-create-collection.png)
 
-> **NOTE**: on IBM Cloud Pak for Data, Discovery service queries are defaulted to be performed on all collections within a project. For this reason, it is advised that you create a new project to contain the collection we will be creating for this code pattern.
+Enter a unique name for your collection and click `Finish`.
 
 ### Import the document
 
-On the `Configure Collection` panel, click the `Select documents` button to select and upload the `ecobee3_UserGuide.pdf` file located in the `data` directory of your local repo.
+On the `Configure Collection` panel, click the `Drag and drop files here or upload` button to select and upload the `ecobee3_UserGuide.pdf` file located in the `data` directory of your local repo.
 
-The `Ecobee` is a popular residential thermostat that has a wifi interface and multiple configuration options.
+  ![disco-upload-file](doc/source/images/disco-upload-file.png)
+
+>**NOTE**: The `Ecobee` is a popular residential thermostat that has a wifi interface and multiple configuration options.
+
+Once the file is loaded, click the `Finish` button.
+
+Note that after the file is loaded it may take some time for Watson Discovery to process the file and make it available for use. You should see a notification once the file is ready.
 
 ### Access the collection
 
 To access the collection, make sure you are in the correct project, then click the `Manage Collections` tab in the left-side of the panel.
 
-  ![project-collections-cpd](doc/source/images/project-collections-cpd.png)
+  ![disco-project-collections](doc/source/images/disco-project-collections.png)
 
 Click the collection tile to access it.
 
-  ![disco-activity-cpd](doc/source/images/disco-activity-cpd.png)
+  ![disco-activity](doc/source/images/disco-activity.png)
 
-Before applying SDU to our document, lets do some simple queries on the data so that we can compare it to results found after applying SDU. Click the `Try it out` panel to bring up the query panel.
+Before applying Smart Document Understanding (SDU) to our document, lets do some simple queries on the data so that we can compare it to results found after applying SDU. Click the `Try it out` panel to bring up the query panel.
 
-![query-results-pre-cpd](doc/source/images/query-results-pre-cpd.png)
+  ![disco-query-results-pre](doc/source/images/disco-query-results-pre.png)
 
 Enter queries related to the operation of the thermostat and view the results. As you will see, the results are not very useful, and in some cases, not even related to the question.
 
@@ -151,20 +179,30 @@ Enter queries related to the operation of the thermostat and view the results. A
 
 Now let's apply SDU to our document to see if we can generate some better query responses.
 
-From the Discovery collection panel, click the `Configure data` button (located in the top right corner) to start the SDU process.
+  ![disco-new-fields](doc/source/images/disco-new-fields.png)
 
-Here is the layout of the `Identify fields` tab of the SDU annotation panel:
+From the `Define structure` drop-down menu, click on `New fields`.
 
-![disco-sdu-panel-cpd](doc/source/images/disco-sdu-panel-cpd.png)
+  ![disco-launch-sdu](doc/source/images/disco-launch-sdu.png)
+
+From the `Identify fields` tab panel, click on `User-trained models`, the click `Submit` from the confirmation dialog.
+
+Click the `Apply changes and reprocess` button in the top right corner. This will SDU process.
+
+Here is the layout of the SDU annotation panel:
+
+![disco-sdu-main-panel](doc/source/images/disco-sdu-main-panel.png)
 
 The goal is to annotate all of the pages in the document so Discovery can learn what text is important, and what text can be ignored.
 
 * [1] is the list of pages in the manual. As each is processed, a green check mark will appear on the page.
 * [2] is the current page being annotated.
-* [3] is where you select text and assign it a label.
-* [4] is the list of labels you can assign to the page text.
+* [3] is a graphic display of the same page, but allows you to select regions that you can label.
+* [4] is the list of labels you can assign to the graphic page.
 * Click [5] to submit the page to Discovery.
 * Click [6] when you have completed the annotation process.
+
+To add/change a label, select the new label, then click on the text areas in the graphic page to apply it.
 
 As you go though the annotations one page at a time, Discovery is learning and should start automatically updating the upcoming pages. Once you get to a page that is already correctly annotated, you can stop, or simply click `Submit` [5] to acknowledge it is correct. The more pages you annotate, the better the model will be trained.
 
@@ -175,80 +213,10 @@ For this specific owner's manual, at a minimum, it is suggested to mark the foll
 * All headers and sub-headers (typed in light green text) as a `subtitle`
 * All page numbers as `footers`
 * All circuitry diagram pages (located near the end of the document) as a `footer`
-* All licensing infomation (located in the last few pages) as a `footer`
+* All licensing information (located in the last few pages) as a `footer`
 * All other text should be marked as `text`.
 
-Click the `Apply changes and reprocess` button [6] to load your changes.
-
-Next, click on the `Manage fields` [1] tab.
-
-![disco-manage-field-cpd](doc/source/images/disco-manage-fields-cpd.png)
-
-* [2] Here is where you tell Discovery which fields to ignore. Using the `on/off` buttons, turn off all labels except `subtitles` and `text`.
-* [3] is telling Discovery to split the document apart, based on `subtitle`.
-* Click [4] to submit your changes.
-
-Return to the `Activity` tab. After the changes are processed (may take some time), your collection will look very different:
-
-![disco-collection-panel-cpd](doc/source/images/disco-collection-panel-cpd.png)
-
-Return to the query panel (click `Try it out`) and see how much better the results are.
-
-![disco-build-query-cpd-2](doc/source/images/disco-build-query-cpd-2.png)
-
-</details>
-
-<details><summary><b>IBM Cloud</b></summary>
-
-### Import the document
-
-As shown below, launch the `Watson Discovery` tool and create a new data collection by selecting the `Upload your own data` option. Give the data collection a unique name. When prompted, select and upload the `ecobee3_UserGuide.pdf` file located in the `data` directory of your local repo.
-
-![upload_data_into_collection](doc/source/images/upload-disco-file-for-sdu.gif)
-
-The `Ecobee` is a popular residential thermostat that has a wifi interface and multiple configuration options.
-
-Before applying SDU to our document, lets do some simple queries on the data so that we can compare it to results found after applying SDU.
-
-![disco-collection-panel-pre](doc/source/images/disco-collection-panel-pre.png)
-
-Click the `Build your own query` [1] button.
-
-![disco-build-query](doc/source/images/disco-build-query.png)
-
-Enter queries related to the operation of the thermostat and view the results. As you will see, the results are not very useful, and in some cases, not even related to the question.
-
-### Annotate with SDU
-
-Now let's apply SDU to our document to see if we can generate some better query responses.
-
-From the Discovery collection panel, click the `Configure data` button (located in the top right corner) to start the SDU process.
-
-Here is the layout of the `Identify fields` tab of the SDU annotation panel:
-
-![disco-sdu-panel](doc/source/images/disco-sdu-panel.png)
-
-The goal is to annotate all of the pages in the document so Discovery can learn what text is important, and what text can be ignored.
-
-* [1] is the list of pages in the manual. As each is processed, a green check mark will appear on the page.
-* [2] is the current page being annotated.
-* [3] is where you select text and assign it a label.
-* [4] is the list of labels you can assign to the page text.
-* Click [5] to submit the page to Discovery.
-* Click [6] when you have completed the annotation process.
-
-As you go though the annotations one page at a time, Discovery is learning and should start automatically updating the upcoming pages. Once you get to a page that is already correctly annotated, you can stop, or simply click `Submit` [5] to acknowledge it is correct. The more pages you annotate, the better the model will be trained.
-
-For this specific owner's manual, at a minimum, it is suggested to mark the following:
-
-* The main title page as `title`
-* The table of contents (shown in the first few pages) as `table_of_contents`
-* All headers and sub-headers (typed in light green text) as a `subtitle`
-* All page numbers as `footers`
-* All warranty and licensing infomation (located in the last few pages) as a `footer`
-* All other text should be marked as `text`.
-
-Once you click the `Apply changes to collection` button [6], you will be asked to reload the document. Choose the same owner's manual `.pdf` document as before.
+Click the `Apply changes and reprocess` button [6] to load your changes. Wait for Discovery to notify you that the reprocessing is complete.
 
 Next, click on the `Manage fields` [1] tab.
 
@@ -258,15 +226,13 @@ Next, click on the `Manage fields` [1] tab.
 * [3] is telling Discovery to split the document apart, based on `subtitle`.
 * Click [4] to submit your changes.
 
-Once again, you will be asked to reload the document.
-
-Now, as a result of splitting the document apart, your collection will look very different:
+Return to the `Activity` tab. After the changes are processed (may take some time), your collection will look very different:
 
 ![disco-collection-panel](doc/source/images/disco-collection-panel.png)
 
-Return to the query panel (click `Build your own query`) and see how much better the results are.
+Return to the query panel (click `Try it out`) and see how much better the results are.
 
-![disco-build-query-2](doc/source/images/disco-build-query-2.png)
+![disco-build-query-after](doc/source/images/disco-build-query-after.png)
 
 </details>
 
@@ -485,9 +451,9 @@ Edit the `.env` file with the necessary credentials and settings.
 
 # Watson Assistant
 ASSISTANT_AUTH_TYPE=iam
-ASSISTANT_APIKEY=zzZzzABCsU8DBrvi123HLZwVyHbRlBFf_97n9O123ABC
-ASSISTANT_URL=https://api.us-south.assistant.watson.cloud.ibm.com/instances/5db04c67
-ASSISTANT_ID=<add_assistant_id>
+ASSISTANT_APIKEY=2ZzwqVghEhvLEvRxfxxxxxmLukVv3YIF411GvgXhHX
+ASSISTANT_URL=https://api.us-south.assistant.watson.cloud.ibm.com/instances/5db04c67-b295-9999-bb99-e5587b6bed91
+ASSISTANT_ID=25f892c4-e1e6-2222-b6c8-0b8660786d1f
 ```
 
 </details>
@@ -510,7 +476,7 @@ Sample questions:
 
 # Access to results in application
 
-* This is a sample of the format for how Discovery results will be returned to the app from the Assistant service:
+* To view the raw JSON results returned from Discovery (via the Assistant search skill), open up the Development tools in your browser and view the console output. Here is sample of what you should see:
 
 ```json
 {
